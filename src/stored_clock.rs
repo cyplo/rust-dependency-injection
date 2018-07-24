@@ -30,6 +30,8 @@ where
 mod should {
 
     use super::*;
+    use std::sync::atomic::AtomicUsize;
+    use std::sync::atomic::Ordering;
     use std::time::Duration;
 
     #[test]
@@ -48,14 +50,24 @@ mod should {
         assert_eq!(32, time_difference.as_secs());
     }
 
-    struct FakeClock;
+    struct FakeClock {
+        now: Instant,
+        move_by_millis: AtomicUsize,
+    }
 
     impl FakeClock {
         fn with_time(now: Instant) -> Arc<Self> {
-            Arc::new(FakeClock {})
+            Arc::new(FakeClock {
+                now,
+                move_by_millis: AtomicUsize::new(0),
+            })
         }
 
-        fn move_by(&self, duration: Duration) {}
+        // WAT no `mut`
+        fn move_by(&self, duration: Duration) {
+            self.move_by_millis
+                .store(duration.as_secs() as usize, Ordering::SeqCst);
+        }
     }
 
     impl Clock for FakeClock {
