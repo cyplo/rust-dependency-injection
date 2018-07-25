@@ -31,6 +31,26 @@ where
     }
 }
 
+struct SystemClock;
+
+impl SystemClock {
+    fn new() -> Arc<Self> {
+        Arc::new(SystemClock {})
+    }
+}
+
+impl Clock for SystemClock {
+    fn now(&self) -> Instant {
+        Instant::now()
+    }
+}
+
+fn main() {
+    let clock = SystemClock::new();
+    let repository = TimestampingRepository::with_clock(clock);
+    // ...
+}
+
 #[cfg(test)]
 mod should {
 
