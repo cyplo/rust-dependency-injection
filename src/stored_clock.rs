@@ -57,28 +57,28 @@ mod should {
 
     struct FakeClock {
         now: Instant,
-        move_by_millis: AtomicUsize,
+        move_by_secs: AtomicUsize,
     }
 
     impl FakeClock {
         fn with_time(now: Instant) -> Arc<Self> {
             Arc::new(FakeClock {
                 now,
-                move_by_millis: AtomicUsize::new(0),
+                move_by_secs: AtomicUsize::new(0),
             })
         }
 
         // WAT no `mut`
         fn move_by(&self, duration: Duration) {
-            self.move_by_millis
+            self.move_by_secs
                 .store(duration.as_secs() as usize, Ordering::SeqCst);
         }
     }
 
     impl Clock for FakeClock {
         fn now(&self) -> Instant {
-            let move_by_millis = self.move_by_millis.load(Ordering::SeqCst) as u64;
-            self.now + Duration::from_millis(move_by_millis)
+            let move_by_millis = self.move_by_secs.load(Ordering::SeqCst) as u64;
+            self.now + Duration::from_secs(move_by_millis)
         }
     }
 
