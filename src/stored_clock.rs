@@ -7,22 +7,27 @@ trait Clock {
 
 struct TimestampingRepository<ClockType> {
     clock: Arc<ClockType>,
+    storage: Vec<Instant>,
 }
 
 impl<ClockType> TimestampingRepository<ClockType>
 where
     ClockType: Clock,
 {
+    // gets an Arc as the clock can change its state independently (can tick in parallel to your code)
     fn with_clock(clock: Arc<ClockType>) -> Self {
-        TimestampingRepository { clock }
+        TimestampingRepository {
+            clock,
+            storage: vec![],
+        }
     }
 
     fn store(&mut self) {
-        unimplemented!()
+        self.storage.push(self.clock.now());
     }
 
     fn all_stored(&self) -> Vec<Instant> {
-        unimplemented!()
+        self.storage.clone()
     }
 }
 
@@ -72,7 +77,8 @@ mod should {
 
     impl Clock for FakeClock {
         fn now(&self) -> Instant {
-            unimplemented!()
+            let move_by_millis = self.move_by_millis.load(Ordering::SeqCst) as u64;
+            self.now + Duration::from_millis(move_by_millis)
         }
     }
 
