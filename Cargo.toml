@@ -1,15 +1,7 @@
 [package]
-name = "rust-time-injection"
+name = "rust-dependency-injection"
 version = "0.1.0"
 authors = ["Cyryl Płotnicki <cyplo@cyplo.net>"]
 
 [dependencies]
 
-
-[[bin]]
-name = "function"
-path = "src/function.rs"
-
-[[bin]]
-name = "stored-clock"
-path = "src/stored_clock.rs"
