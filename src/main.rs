@@ -7,7 +7,8 @@ trait Clock {
 
 struct TimestampingRepository<ClockType> {
     clock: Arc<ClockType>,
-    storage: Vec<Instant>,
+    // (timestamp, value)
+    storage: Vec<(Instant, u32)>,
 }
 
 impl<ClockType> TimestampingRepository<ClockType>
@@ -22,11 +23,11 @@ where
         }
     }
 
-    fn store(&mut self) {
-        self.storage.push(self.clock.now());
+    fn store(&mut self, value: u32) {
+        self.storage.push((self.clock.now(), value));
     }
 
-    fn all_stored(&self) -> Vec<Instant> {
+    fn all_stored(&self) -> Vec<(Instant, u32)> {
         self.storage.clone()
     }
 }
@@ -48,7 +49,8 @@ impl Clock for SystemClock {
 fn main() {
     let clock = SystemClock::new();
     let mut repository = TimestampingRepository::with_clock(clock);
-    repository.store();
+    repository.store(1);
+    repository.store(2);
     println!("{:?}", repository.all_stored());
 }
 
@@ -66,12 +68,14 @@ mod should {
         let movable_clock_handle = consumable_clock_handle.clone();
         let mut repository = TimestampingRepository::with_clock(consumable_clock_handle);
 
-        repository.store();
+        repository.store(1);
         movable_clock_handle.move_by(Duration::from_secs(32));
-        repository.store();
+        repository.store(2);
 
         let stored_values = repository.all_stored();
-        let time_difference = stored_values[1] - stored_values[0];
+        let first_timestamp = stored_values[0].0;
+        let second_timestamp = stored_values[1].0;
+        let time_difference = second_timestamp - first_timestamp;
 
         assert_eq!(32, time_difference.as_secs());
     }
