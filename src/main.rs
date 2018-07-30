@@ -7,8 +7,7 @@ trait Clock {
 
 struct TimestampingRepository<ClockType> {
     clock: Arc<ClockType>,
-    // (timestamp, value)
-    storage: Vec<(Instant, u32)>,
+    storage: Vec<(Instant, u32)>, // (timestamp, value)
 }
 
 impl<ClockType> TimestampingRepository<ClockType>
