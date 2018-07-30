@@ -4,6 +4,20 @@ trait Clock {
     fn now(&self) -> Instant;
 }
 
+struct SystemClock;
+
+impl SystemClock {
+    fn new() -> Self {
+        SystemClock {}
+    }
+}
+
+impl Clock for SystemClock {
+    fn now(&self) -> Instant {
+        Instant::now()
+    }
+}
+
 struct TimestampingRepository<'a, ClockType>
 where
     ClockType: Clock + 'a,
@@ -29,20 +43,6 @@ where
 
     fn all_stored(&self) -> Vec<(Instant, u32)> {
         self.storage.clone()
-    }
-}
-
-struct SystemClock;
-
-impl SystemClock {
-    fn new() -> Self {
-        SystemClock {}
-    }
-}
-
-impl Clock for SystemClock {
-    fn now(&self) -> Instant {
-        Instant::now()
     }
 }
 
