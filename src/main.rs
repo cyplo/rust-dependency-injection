@@ -1,21 +1,22 @@
-use std::sync::Arc;
 use std::time::Instant;
 
 trait Clock {
     fn now(&self) -> Instant;
 }
 
-struct TimestampingRepository<ClockType> {
-    clock: Arc<ClockType>,
+struct TimestampingRepository<'a, ClockType>
+where
+    ClockType: Clock + 'a,
+{
+    clock: &'a ClockType,
     storage: Vec<(Instant, u32)>, // (timestamp, value)
 }
 
-impl<ClockType> TimestampingRepository<ClockType>
+impl<'a, ClockType> TimestampingRepository<'a, ClockType>
 where
-    ClockType: Clock,
+    ClockType: Clock + 'a,
 {
-    // gets an Arc as the clock can change its state independently (can tick in parallel to your code)
-    fn with_clock(clock: Arc<ClockType>) -> Self {
+    fn with_clock(clock: &'a ClockType) -> Self {
         TimestampingRepository {
             clock,
             storage: vec![],
@@ -34,8 +35,8 @@ where
 struct SystemClock;
 
 impl SystemClock {
-    fn new() -> Arc<Self> {
-        Arc::new(SystemClock {})
+    fn new() -> Self {
+        SystemClock {}
     }
 }
 
@@ -47,9 +48,11 @@ impl Clock for SystemClock {
 
 fn main() {
     let clock = SystemClock::new();
-    let mut repository = TimestampingRepository::with_clock(clock);
+    let mut repository = TimestampingRepository::with_clock(&clock);
+
     repository.store(1);
     repository.store(2);
+
     println!("{:?}", repository.all_stored());
 }
 
@@ -63,12 +66,11 @@ mod should {
 
     #[test]
     fn handle_seconds() {
-        let consumable_clock_handle = FakeClock::with_time(Instant::now());
-        let movable_clock_handle = consumable_clock_handle.clone();
-        let mut repository = TimestampingRepository::with_clock(consumable_clock_handle);
+        let clock = FakeClock::with_time(Instant::now());
+        let mut repository = TimestampingRepository::with_clock(&clock);
 
         repository.store(1);
-        movable_clock_handle.move_by(Duration::from_secs(32));
+        clock.move_by(Duration::from_secs(32));
         repository.store(2);
 
         let time_difference = time_difference_between_two_stored(repository);
@@ -94,11 +96,11 @@ mod should {
     }
 
     impl FakeClock {
-        fn with_time(now: Instant) -> Arc<Self> {
-            Arc::new(FakeClock {
+        fn with_time(now: Instant) -> Self {
+            FakeClock {
                 now,
                 move_by_secs: AtomicUsize::new(0),
-            })
+            }
         }
 
         // WAT no `mut`
