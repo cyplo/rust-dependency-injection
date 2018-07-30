@@ -102,7 +102,7 @@ mod should {
 ```
 
 That's a lot of code. And I already skipped `use`s and some definitions to make it less.  
-If you want to get the full source code that to follow along - try this [playground](https://play.rust-lang.org/?gist=b505df483da582cfc7baa9889173c89a&version=stable&mode=debug&edition=2015) or [this repo](https://github.com/cyplo/rust-dependency-injection) for the full project including production code usage.  
+If you want to get the full source code that to follow along - try this [playground](https://play.rust-lang.org/?gist=7f47c441732b543a918cb491487196d4&version=stable&mode=debug&edition=2015) or [this repo](https://github.com/cyplo/rust-dependency-injection) for the full project including production code usage.  
 
 Let's start with the test itself.  
 The clock appears to be immutable (immovable) in the test, yet we call `move_by` on it and the whole thing appears to be working somehow.
