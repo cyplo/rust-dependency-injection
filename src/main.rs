@@ -71,12 +71,21 @@ mod should {
         movable_clock_handle.move_by(Duration::from_secs(32));
         repository.store(2);
 
+        let time_difference = time_difference_between_two_stored(repository);
+
+        assert_eq!(32, time_difference.as_secs());
+    }
+
+    fn time_difference_between_two_stored<ClockType>(
+        repository: TimestampingRepository<ClockType>,
+    ) -> Duration
+    where
+        ClockType: Clock,
+    {
         let stored_values = repository.all_stored();
         let first_timestamp = stored_values[0].0;
         let second_timestamp = stored_values[1].0;
-        let time_difference = second_timestamp - first_timestamp;
-
-        assert_eq!(32, time_difference.as_secs());
+        second_timestamp - first_timestamp
     }
 
     struct FakeClock {
