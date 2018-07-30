@@ -112,8 +112,8 @@ mod should {
 
     impl Clock for FakeClock {
         fn now(&self) -> Instant {
-            let move_by_millis = self.move_by_secs.load(Ordering::SeqCst) as u64;
-            self.now + Duration::from_secs(move_by_millis)
+            let move_by_secs = self.move_by_secs.load(Ordering::SeqCst) as u64;
+            self.now + Duration::from_secs(move_by_secs)
         }
     }
 
