@@ -47,7 +47,7 @@ impl Clock for SystemClock {
 
 fn main() {
     let clock = SystemClock::new();
-    let repository = TimestampingRepository::with_clock(clock);
+    let _repository = TimestampingRepository::with_clock(clock);
     // ...
 }
 

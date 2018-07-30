@@ -9,6 +9,27 @@ fn format_time_difference(clock1: impl Clock, clock2: impl Clock) -> String {
     format!("{} seconds ago", difference.as_secs())
 }
 
+struct SystemClock;
+
+impl SystemClock {
+    fn new() -> Self {
+        SystemClock {}
+    }
+}
+
+impl Clock for SystemClock {
+    fn now(&self) -> Instant {
+        Instant::now()
+    }
+}
+
+fn main() {
+    let clock1 = SystemClock::new();
+    let clock2 = SystemClock::new();
+    let formatted_time = format_time_difference(clock1, clock2);
+    println!("{}", formatted_time);
+}
+
 #[cfg(test)]
 mod should {
 
